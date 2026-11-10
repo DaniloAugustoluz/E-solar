@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Solar Ipiranga · Simulador de economia com energia solar</title>
+<meta name="description" content="Simule em segundos quanto você economiza com energia solar em São Paulo. Projetos para casas, comércios e indústrias.">
+<meta name="theme-color" content="#0b1220">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --graphite:#0b1220; --graphite-2:#0f1a2c; --graphite-3:#16233b; --night:#070b13;
+  --bg:#f7f8fa; --surface:#fff; --surface-2:#f1f3f6;
+  --ink:#0a0e14; --ink-soft:#161b24; --muted:#5b6472; --muted-2:#8b93a1;
+  --line:#e6e9ee; --line-strong:#d5dae2;
+  --on-dark:#e8eef6; --on-dark-muted:#9fb0c3; --line-dark:rgba(255,255,255,.09);
+  --sun:#f59e0b; --sun-2:#fbbf24; --sun-soft:#fff4d6; --sun-ink:#1c1303;
+  --grad:linear-gradient(120deg,#f59e0b 0%,#fbbf24 100%);
+  --leaf:#16a34a; --leaf-soft:#e9f9ef; --wa:#22c55e;
+  --radius:24px; --radius-lg:30px;
+  --shadow-md:0 18px 40px -18px rgba(11,18,32,.22);
+  --shadow-lg:0 40px 90px -30px rgba(11,18,32,.35);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --font-sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --font-serif:"Instrument Serif",Georgia,serif;
+  --gutter:clamp(16px,5vw,48px);
+  --maxw:1200px;
+  --fs-display:clamp(2.5rem,4.6vw + .4rem,4.9rem);
+  --fs-h2:clamp(2rem,2.6vw + .8rem,3.3rem);
+  --fs-h3:clamp(1.15rem,.5vw + 1rem,1.36rem);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+figure{margin:0}
+.static [data-reveal]{opacity:1!important;transform:none!important}
+.static *,.static *::before,.static *::after{transition:none!important;animation-duration:0s!important;animation-delay:0s!important}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:8px}
+.wrap{width:100%;max-width:calc(var(--maxw) + 2*var(--gutter));margin:0 auto;padding:0 var(--gutter)}
+.serif{font-family:var(--font-serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--sun)}
+.on-dark .eyebrow{color:var(--on-dark-muted)}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.025em;line-height:1.06}
+h2{font-size:var(--fs-h2)}
+h3{font-size:var(--fs-h3);letter-spacing:-.015em;line-height:1.2}
+p{margin:0}
+
+/* ---------- Botões ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 26px;border-radius:999px;border:0;font-weight:600;font-size:15.5px;text-decoration:none;cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .25s;white-space:nowrap}
+.btn svg{width:18px;height:18px;transition:transform .35s var(--ease)}
+.btn:hover svg{transform:translateX(3px)}
+.btn-sun{background:var(--grad);color:var(--sun-ink);box-shadow:0 14px 34px -12px rgba(245,158,11,.65)}
+.btn-sun:hover{transform:translateY(-2px);box-shadow:0 20px 44px -14px rgba(245,158,11,.75)}
+.btn-ghost{background:rgba(255,255,255,.04);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.btn-ghost:hover{background:rgba(255,255,255,.09)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-wa{background:var(--wa);color:#04210f}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(34,197,94,.7)}
+.btn-sm{height:44px;padding:0 20px;font-size:14.5px}
+
+/* ---------- Barra de protótipo + header ---------- */
+.proto{background:var(--night);color:var(--on-dark-muted);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:7px 16px;border-bottom:1px solid var(--line-dark)}
+.proto a{color:var(--sun-2);text-decoration:none}
+.site-header{position:sticky;top:0;z-index:50;background:var(--graphite);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+.site-header.scrolled{background:rgba(11,18,32,.86);border-bottom-color:var(--line-dark)}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-mark{width:34px;height:34px;flex:none}
+.brand-name{display:flex;flex-direction:column;line-height:1}
+.brand-name b{font-size:18px;letter-spacing:.14em;font-weight:700}
+.brand-name b span{font-weight:400;letter-spacing:.14em}
+.brand-name small{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--on-dark-muted);margin-top:5px}
+.menu{display:flex;align-items:center;gap:30px}
+.menu a{text-decoration:none;font-weight:500;font-size:15px;color:#fff;opacity:.88;transition:opacity .2s}
+.menu a:hover{opacity:1}
+.menu .btn{opacity:1}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;background:var(--graphite);color:var(--on-dark);overflow:hidden;padding:64px 0 84px;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 70% 70% at 70% 35%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 70% 70% at 70% 35%,#000 10%,transparent 75%)}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(640px 420px at 82% 14%,rgba(245,158,11,.20),transparent 62%),radial-gradient(520px 380px at 4% 100%,rgba(34,197,94,.08),transparent 60%)}
+.orb{position:absolute;z-index:-1;right:max(2%,calc(50% - 640px));top:22px;width:210px;height:210px;pointer-events:none;animation:float 9s ease-in-out infinite}
+.orb i{position:absolute;inset:30px;border-radius:50%;background:radial-gradient(circle at 36% 34%,#fffbea 0%,#fde68a 18%,#fbbf24 42%,#f59e0b 64%,#b45309 100%);box-shadow:0 0 90px 30px rgba(245,158,11,.28),0 0 200px 80px rgba(245,158,11,.10)}
+.orb::before,.orb::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(251,191,36,.28);transform:rotateX(72deg);animation:spin 18s linear infinite}
+.orb::after{inset:-26px;border-color:rgba(251,191,36,.14);animation-duration:26s;animation-direction:reverse}
+@keyframes float{50%{transform:translateY(-12px)}}
+@keyframes spin{to{transform:rotateX(72deg) rotateZ(360deg)}}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(32px,5vw,72px);align-items:center}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);font-family:var(--font-mono);font-size:12.5px;color:var(--on-dark)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--sun-2);box-shadow:0 0 0 4px rgba(251,191,36,.18);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(251,191,36,.04)}}
+.hero h1{font-size:var(--fs-display);color:#fff;margin:26px 0 22px}
+.hero h1 .serif{font-size:1.06em;line-height:.9}
+.lead{font-size:clamp(1.05rem,.4vw + 1rem,1.22rem);color:var(--on-dark-muted);max-width:560px}
+.lead strong{color:#fff;font-weight:600}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.hero-wa{display:flex;align-items:center;gap:10px;margin-top:22px;font-size:14.5px;color:var(--on-dark-muted)}
+.hero-wa svg{width:17px;height:17px;color:var(--wa)}
+.hero-wa a{color:#fff;font-weight:500;text-underline-offset:4px}
+.stats{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:22px 44px;margin-top:40px;padding-top:28px;border-top:1px solid var(--line-dark)}
+.stat b{display:block;font-size:30px;font-weight:600;letter-spacing:-.03em;color:#fff;line-height:1}
+.stat b .star{color:var(--sun-2);font-size:22px;vertical-align:3px;margin-left:2px}
+.stat > span{display:block;margin-top:8px;font-size:13.5px;color:var(--on-dark-muted)}
+
+/* ---------- Card do simulador ---------- */
+.sim{position:relative;background:var(--surface);color:var(--ink);border-radius:var(--radius-lg);padding:clamp(22px,3vw,34px);box-shadow:0 60px 120px -50px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06)}
+.sim::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(160deg,rgba(251,191,36,.7),rgba(251,191,36,0) 40%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.sim-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.sim-head h2{font-size:24px;letter-spacing:-.02em}
+.sim-head p{color:var(--muted);font-size:14px;margin-top:6px}
+.step-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sun-ink);background:var(--sun-soft);padding:6px 10px;border-radius:999px;white-space:nowrap}
+.field{margin-top:24px}
+.field-label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;font-weight:600;margin-bottom:10px}
+.field-label small{font-weight:400;color:var(--muted-2);font-size:12.5px}
+.money{display:flex;align-items:baseline;gap:8px;padding:14px 18px;border-radius:18px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .2s}
+.money:focus-within{box-shadow:inset 0 0 0 2px var(--sun)}
+.money span{font-size:22px;font-weight:500;color:var(--muted)}
+.money input{flex:1;min-width:0;width:100%;border:0;background:transparent;font-size:clamp(34px,4vw,42px);font-weight:600;letter-spacing:-.03em;outline:none;padding:0}
+.money em{font-style:normal;font-size:14px;color:var(--muted-2)}
+.range{width:100%;margin:18px 0 6px;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;background:linear-gradient(90deg,var(--sun) 0%,var(--sun-2) var(--p,30%),var(--line) var(--p,30%));outline:none;cursor:pointer}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 6px rgba(245,158,11,.22),0 4px 10px rgba(0,0,0,.25);cursor:grab}
+.range::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 6px rgba(245,158,11,.22),0 4px 10px rgba(0,0,0,.25);cursor:grab}
+.range-scale{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--muted-2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:0;cursor:pointer;height:40px;padding:0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-strong);font-size:14px;font-weight:500;color:var(--ink-soft);transition:background .2s,color .2s,box-shadow .2s,transform .2s}
+.chip:hover{box-shadow:inset 0 0 0 1px var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;box-shadow:none}
+.chip-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip-row .chip{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;padding:0 10px}
+.chip-row .chip svg{width:18px;height:18px;opacity:.8}
+.hint{font-size:12.5px;color:var(--muted-2);margin-top:8px}
+.sim .btn{width:100%;margin-top:26px;height:58px;font-size:16px}
+.sim-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted-2)}
+.sim-foot svg{width:14px;height:14px}
+.err{color:#b42318;font-size:13px;margin-top:8px;display:none}
+.err.show{display:block}
+
+/* ---------- Resultado ---------- */
+.result{background:var(--bg);padding:88px 0 8px;display:none;scroll-margin-top:90px}
+.result.show{display:block}
+.result-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:36px}
+.result-head h2{margin-top:16px}
+.result-head h2 .serif{color:var(--leaf)}
+.result-head p{color:var(--muted);margin-top:14px;font-size:17px}
+.badge-eco{display:inline-flex;align-items:center;gap:8px;background:var(--leaf-soft);color:var(--leaf);font-weight:600;padding:10px 16px;border-radius:999px;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:0 0 0 1px var(--line);position:relative;overflow:hidden}
+.kpi small{display:block;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kpi b{display:block;font-size:clamp(26px,2.4vw,34px);font-weight:600;letter-spacing:-.03em;margin-top:14px;line-height:1.05}
+.kpi span{display:block;font-size:13.5px;color:var(--muted);margin-top:8px}
+.kpi.hl{background:var(--graphite);color:#fff;box-shadow:none}
+.kpi.hl small{color:var(--on-dark-muted)}
+.kpi.hl span{color:var(--on-dark-muted)}
+.kpi.hl b{color:var(--sun-2)}
+.kpi.hl::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.35),transparent 65%)}
+.grid-2{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-top:16px}
+.card{background:var(--surface);border-radius:var(--radius);padding:26px;box-shadow:0 0 0 1px var(--line)}
+.card-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.card-title h3{font-size:18px}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.chart{margin-top:14px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--font-mono);font-size:11px;fill:var(--muted-2)}
+.sys-list{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:2px}
+.sys-list li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px dashed var(--line-strong);font-size:14.5px;color:var(--muted)}
+.sys-list li:last-child{border-bottom:0}
+.sys-list li b{color:var(--ink);font-weight:600;font-size:15.5px;text-align:right}
+.panels-viz{display:grid;grid-template-columns:repeat(auto-fill,minmax(18px,1fr));gap:4px;margin-top:18px;padding:14px;border-radius:16px;background:linear-gradient(180deg,#eef3fb,#e3eaf6)}
+.panels-viz i{aspect-ratio:1/1.6;border-radius:3px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8 55%,#3b82f6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);opacity:0;transform:translateY(6px);animation:pop .5s var(--ease) forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.compare{margin-top:18px;display:grid;gap:16px}
+.bar-row small{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:8px}
+.bar-row small b{color:var(--ink);font-size:15px}
+.bar{height:14px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:inherit;width:0;transition:width 1.1s var(--ease)}
+.bar.now i{background:#9aa3b2}
+.bar.sol i{background:var(--grad)}
+.chart-card{display:flex;flex-direction:column}
+.chart-card .chart{flex:1;display:flex;align-items:center}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.mini div{padding:14px 16px;border-radius:16px;background:var(--surface-2);font-size:13px;color:var(--muted)}
+.mini div b{display:block;font-size:18px;color:var(--ink);letter-spacing:-.02em;margin-top:4px;font-weight:600}
+.mini div.inv{background:var(--sun-soft);color:#7a5507}
+.mini div.inv b{color:var(--sun-ink)}
+
+/* lead */
+.lead-card{margin-top:16px;background:var(--graphite);color:var(--on-dark);border-radius:var(--radius-lg);padding:clamp(24px,3.4vw,40px);display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(24px,4vw,56px);position:relative;overflow:hidden;isolation:isolate}
+.lead-card::after{content:"";position:absolute;z-index:-1;left:-120px;bottom:-160px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.18),transparent 65%)}
+.lead-card h3{font-size:clamp(1.6rem,1.4vw + 1rem,2.2rem);color:#fff;letter-spacing:-.025em;line-height:1.1;margin-top:14px}
+.lead-card p{color:var(--on-dark-muted);margin-top:14px}
+.checks{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px}
+.checks li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--on-dark)}
+.checks svg{width:20px;height:20px;flex:none;color:var(--wa);margin-top:1px}
+.form{display:grid;gap:14px;align-content:start}
+.form label{display:block;font-size:13px;font-weight:500;color:var(--on-dark-muted);margin-bottom:7px}
+.form input{width:100%;height:52px;padding:0 16px;border-radius:14px;border:0;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);color:#fff;font-size:15.5px;outline:none;transition:box-shadow .2s,background .2s}
+.form input::placeholder{color:#6f8096}
+.form input:focus{box-shadow:inset 0 0 0 2px var(--sun-2);background:rgba(255,255,255,.09)}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .chips .chip{background:rgba(255,255,255,.04);color:var(--on-dark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.form .chips .chip[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.form .btn{width:100%;height:56px;margin-top:4px}
+.form-note{font-size:12.5px;color:#7d8da3;text-align:center}
+.sent{display:none;text-align:center;padding:24px 8px}
+.sent.show{display:block}
+.sent .ok{width:58px;height:58px;border-radius:50%;margin:0 auto 16px;display:grid;place-items:center;background:rgba(34,197,94,.14);color:var(--wa)}
+.sent .ok svg{width:28px;height:28px}
+.sent h4{font-size:22px;color:#fff;margin:0;font-weight:600;letter-spacing:-.02em}
+.sent p{margin-top:10px}
+.sent a{color:var(--sun-2)}
+.method{margin-top:20px;border-radius:18px;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+.method summary{cursor:pointer;list-style:none;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;font-weight:500;font-size:14.5px}
+.method summary::-webkit-details-marker{display:none}
+.method summary svg{width:18px;height:18px;transition:transform .3s var(--ease)}
+.method[open] summary svg{transform:rotate(45deg)}
+.method ul{margin:0;padding:0 22px 20px 40px;color:var(--muted);font-size:13.5px;display:grid;gap:6px}
+.again{display:flex;justify-content:center;margin-top:28px}
+.link-btn{background:none;border:0;cursor:pointer;color:var(--muted);font-weight:500;display:inline-flex;align-items:center;gap:8px;font-size:14.5px;text-decoration:underline;text-underline-offset:4px}
+
+/* ---------- Seções ---------- */
+.section{padding:clamp(72px,9vw,120px) 0}
+.sec-head{text-align:center;max-width:760px;margin:0 auto 52px}
+.sec-head h2{margin-top:18px}
+.sec-head h2 .serif{color:var(--sun)}
+.sec-head p{color:var(--muted);margin-top:16px;font-size:17px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{background:var(--surface);border-radius:var(--radius);padding:28px;box-shadow:0 0 0 1px var(--line);transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.step:hover{transform:translateY(-4px);box-shadow:0 0 0 1px var(--line),var(--shadow-md)}
+.step-top{display:flex;justify-content:space-between;align-items:center}
+.num{width:44px;height:44px;border-radius:12px;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--font-mono);font-size:14px}
+.step-top svg{width:22px;height:22px;color:var(--sun)}
+.step h3{margin-top:24px}
+.step p{color:var(--muted);margin-top:12px;font-size:15px}
+.step .you{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.step .you b{color:var(--ink)}
+
+.projects{background:var(--graphite);color:var(--on-dark);position:relative;overflow:hidden}
+.projects::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 90% 0%,rgba(245,158,11,.10),transparent 60%);pointer-events:none}
+.proj-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:44px}
+.proj-head h2{color:#fff;margin-top:18px;max-width:640px}
+.proj-head h2 .serif{color:var(--sun-2)}
+.proj-head p{color:var(--on-dark-muted);max-width:380px}
+.gallery{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.shot{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4.2;background:var(--graphite-3);box-shadow:0 0 0 1px var(--line-dark)}
+.shot img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.shot:hover img{transform:scale(1.05)}
+.shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,32,0) 45%,rgba(11,18,32,.92) 100%)}
+.shot .tag{position:absolute;z-index:1;top:14px;left:14px;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;padding:6px 10px;border-radius:999px;background:rgba(11,18,32,.6);backdrop-filter:blur(6px);color:#fff}
+.shot .tag i{width:6px;height:6px;border-radius:50%;background:var(--wa)}
+.shot figcaption{position:absolute;z-index:1;left:18px;right:18px;bottom:16px}
+.shot figcaption b{display:block;color:#fff;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.shot figcaption span{display:block;color:var(--on-dark-muted);font-size:13px;margin-top:4px;font-family:var(--font-mono)}
+.next-card{border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;background:linear-gradient(160deg,#1b2a44 0%,#0f1a2c 100%);box-shadow:inset 0 0 0 1px rgba(251,191,36,.28);position:relative;overflow:hidden}
+.next-card::after{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.4),transparent 65%)}
+.next-card .eyebrow{color:var(--sun-2)}
+.next-card h3{color:#fff;font-size:24px;line-height:1.15;margin-top:14px}
+.next-card p{color:var(--on-dark-muted);font-size:14.5px;margin-top:10px}
+.next-card .btn{position:relative;z-index:1}
+
+.why{background:var(--surface)}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.why-card{border-radius:var(--radius);padding:30px;background:var(--bg);box-shadow:0 0 0 1px var(--line)}
+.why-card b{display:block;font-size:clamp(44px,4vw,58px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.why-card b .serif{color:var(--sun);font-size:1.05em}
+.why-card h3{margin-top:18px;font-size:18px}
+.why-card p{color:var(--muted);margin-top:10px;font-size:15px}
+.why-card .src{display:block;margin-top:16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted-2);text-decoration:none}
+.why-card .src:hover{color:var(--ink)}
+
+.faq{background:var(--bg)}
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,80px);align-items:start}
+.faq-grid h2{margin-top:18px}
+.faq-grid h2 .serif{color:var(--sun)}
+.faq-grid > div > p{color:var(--muted);margin-top:16px}
+.faq-grid .btn{margin-top:28px}
+.qa{border-bottom:1px solid var(--line-strong)}
+.qa summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;font-size:17px;font-weight:500;letter-spacing:-.01em}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary i{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line-strong);transition:transform .35s var(--ease),background .2s}
+.qa summary i svg{width:14px;height:14px}
+.qa[open] summary i{transform:rotate(45deg);background:var(--ink);color:#fff;box-shadow:none}
+.qa p{color:var(--muted);padding:0 52px 22px 0;font-size:15.5px}
+
+.final{background:var(--graphite);color:#fff;position:relative;overflow:hidden;isolation:isolate;text-align:center}
+.final::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 60% 70% at 50% 100%,#000,transparent 75%);mask-image:radial-gradient(ellipse 60% 70% at 50% 100%,#000,transparent 75%)}
+.final::after{content:"";position:absolute;z-index:-1;left:50%;bottom:-260px;width:760px;height:460px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(245,158,11,.30),transparent)}
+.final h2{font-size:clamp(2.2rem,4vw + .5rem,4.2rem);margin:20px auto 0;max-width:900px}
+.final h2 .serif{color:var(--sun-2)}
+.final p{color:var(--on-dark-muted);margin:18px auto 0;max-width:560px;font-size:17px}
+.final .hero-cta{justify-content:center}
+
+.site-footer{background:var(--night);color:var(--on-dark-muted);padding:56px 0 30px;font-size:14px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px}
+.foot-grid h4{margin:0 0 14px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#fff;font-weight:500}
+.foot-grid ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.foot-grid a{text-decoration:none}
+.foot-grid a:hover{color:#fff}
+.foot-grid .brand{color:#fff}
+.foot-grid p{margin-top:16px;max-width:340px}
+.foot-bottom{margin-top:44px;padding-top:22px;border-top:1px solid var(--line-dark);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:12.5px}
+.foot-bottom a{color:var(--sun-2);text-decoration:none}
+
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:60;width:58px;height:58px;border-radius:50%;background:var(--wa);display:grid;place-items:center;box-shadow:0 14px 34px -10px rgba(34,197,94,.75);transition:transform .3s var(--ease)}
+.wa-float:hover{transform:scale(1.07)}
+.wa-float svg{width:28px;height:28px;color:#fff}
+
+[data-reveal]{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+[data-reveal].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  [data-reveal]{opacity:1;transform:none}
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width:1080px){
+  .gallery{grid-template-columns:repeat(3,1fr)}
+  .next-card{grid-column:span 3}
+}
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:minmax(0,1fr)}
+  .orb{width:150px;height:150px;top:-40px;right:-70px;opacity:.6}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid-2,.lead-card,.faq-grid{grid-template-columns:minmax(0,1fr)}
+  .steps,.why-grid{grid-template-columns:minmax(0,1fr)}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-grid > div:first-child{grid-column:span 2}
+}
+@media (max-width:860px){
+  .menu a:not(.btn){display:none}
+}
+@media (max-width:640px){
+  .proto{font-size:10px;letter-spacing:.05em}
+  .nav{height:64px}
+  .brand-name b{font-size:16px}
+  .menu .btn{height:40px;padding:0 14px;font-size:13.5px}
+  .menu .btn .lbl-long{display:none}
+  .hero{padding:44px 0 64px}
+  .hero-cta .btn{flex:1 1 100%}
+  .stats{grid-template-columns:auto auto;gap:22px 30px}
+  .stat b{font-size:24px}
+  .chip-row .chip{font-size:13px;gap:6px}
+  .gallery{grid-template-columns:repeat(2,1fr);gap:12px}
+  .next-card{grid-column:span 2}
+  .kpi{padding:20px}
+  .kpi b{font-size:24px}
+  .mini{grid-template-columns:1fr 1fr}
+  .mini div.inv{grid-column:span 2}
+  .card{padding:20px}
+  .result-head h2{font-size:clamp(1.9rem,7vw,2.4rem)}
+  .form .two{grid-template-columns:minmax(0,1fr)}
+  .form{grid-template-columns:minmax(0,1fr)}
+  .form .btn{white-space:normal;height:auto;min-height:56px;padding:12px 18px;text-align:center}
+  .lead-card{padding:24px 20px}
+  .qa p{padding-right:0}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-grid > div:first-child{grid-column:auto}
+  .wa-float{width:52px;height:52px;right:16px;bottom:16px}
+}
+@media (min-width:641px){.menu .btn .lbl-short{display:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.05c-.24.68-1.42 1.3-1.95 1.34-.5.05-.97.23-3.28-.68-2.77-1.09-4.53-3.93-4.67-4.11-.13-.18-1.11-1.48-1.11-2.83 0-1.34.71-2 .96-2.28.25-.27.54-.34.72-.34h.52c.17 0 .4-.06.62.47.24.56.79 1.92.86 2.06.07.14.11.3.02.48-.09.18-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.56.16.27.7 1.16 1.51 1.88 1.04.93 1.91 1.21 2.18 1.35.27.14.43.11.59-.07.16-.18.68-.79.86-1.07.18-.27.36-.23.61-.14.25.09 1.58.75 1.85.88.27.14.45.2.52.32.07.11.07.66-.17 1.33Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".16"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m7.5 12.3 3 3 6-6.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 10h12v10H6zM8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9 5.5 4h13L20 9M4 9v11h16V9M4 9h16M9.5 20v-6h5v6"/></symbol>
+    <symbol id="i-factory" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 20V10l5 3V10l5 3V6h4l1 14H3Zm4-3h2m3 0h2"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm9 16-4-4"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></symbol>
+  </defs>
+</svg>
+
+<div class="proto">Protótipo de demonstração · criado pela <a href="https://www.alphasolution.com.br" target="_blank" rel="noopener">Alpha Solution</a> para a E-Solar Ipiranga</div>
+
+<header class="site-header" id="topo">
+  <div class="wrap nav">
+    <a class="brand" href="#topo" aria-label="E-Solar Ipiranga, início">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="7.5" fill="url(#gSun)"/>
+        <g stroke="url(#gSun)" stroke-width="2.6" stroke-linecap="round">
+          <path d="M20 3.5v4.5M20 32v4.5M3.5 20H8M32 20h4.5M8.3 8.3l3.2 3.2M28.5 28.5l3.2 3.2M8.3 31.7l3.2-3.2M28.5 11.5l3.2-3.2"/>
+        </g>
+      </svg>
+      <span class="brand-name"><b>E-<span>SOLAR</span></b><small>IPIRANGA · SP</small></span>
+    </a>
+    <nav class="menu" aria-label="Principal">
+      <a href="#simulador">Simulador</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#projetos">Projetos</a>
+      <a href="#duvidas">Dúvidas</a>
+      <a class="btn btn-sun btn-sm js-wa" data-msg="geral" href="https://wa.me/5511965701211" target="_blank" rel="noopener"><span class="lbl-long">Pedir orçamento</span><span class="lbl-short">Orçamento</span><svg><use href="#i-arrow"/></svg></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ================= HERO + SIMULADOR ================= -->
+<section class="hero on-dark" id="simulador">
+  <div class="orb" aria-hidden="true"><i></i></div>
+  <div class="wrap hero-grid">
+    <div data-reveal>
+      <span class="pill"><span class="dot"></span>Simulação gratuita · resultado na hora</span>
+      <h1>Descubra quanto você <span class="serif grad-text">economiza</span> com energia solar.</h1>
+      <p class="lead">Informe o valor da sua conta de luz e veja <strong>o sistema ideal para o seu imóvel</strong>, quanto você deixa de pagar por mês e em quanto tempo o investimento se paga.</p>
+      <div class="hero-wa">
+        <svg><use href="#i-wa"/></svg>
+        <span>Prefere conversar? <a class="js-wa" data-msg="geral" href="https://wa.me/5511965701211" target="_blank" rel="noopener">Chame a E-Solar no WhatsApp</a></span>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>4,8<span class="star">★</span></b><span>22 avaliações no Google</span></div>
+        <div class="stat"><b>Todo imóvel</b><span>Casa, comércio e indústria</span></div>
+        <div class="stat"><b>Ipiranga</b><span>Atendimento em São Paulo</span></div>
+      </div>
+    </div>
+
+    <form class="sim" id="simForm" novalidate data-reveal>
+      <div class="sim-head">
+        <div>
+          <h2>Simule sua economia</h2>
+          <p>Leva menos de 1 minuto.</p>
+        </div>
+        <span class="step-tag">Passo 1 de 2</span>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="valor">Quanto vem sua conta de luz por mês? <small>média dos últimos meses</small></label>
+        <div class="money">
+          <span>R$</span>
+          <input id="valor" name="valor" inputmode="numeric" autocomplete="off" value="450" aria-describedby="valorErr">
+          <em>/mês</em>
+        </div>
+        <input class="range" id="faixa" type="range" min="150" max="5000" step="10" value="450" aria-label="Ajustar valor da conta">
+        <div class="range-scale"><span>R$ 150</span><span>R$ 2.500</span><span>R$ 5.000+</span></div>
+        <p class="err" id="valorErr">Digite um valor a partir de R$ 150.</p>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Tipo de imóvel</div>
+        <div class="chip-row" role="group" aria-label="Tipo de imóvel">
+          <button type="button" class="chip" data-group="tipo" data-value="casa" aria-pressed="true"><svg><use href="#i-home"/></svg>Casa</button>
+          <button type="button" class="chip" data-group="tipo" data-value="comercio" aria-pressed="false"><svg><use href="#i-store"/></svg>Comércio</button>
+          <button type="button" class="chip" data-group="tipo" data-value="industria" aria-pressed="false"><svg><use href="#i-factory"/></svg>Indústria</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Tipo de ligação <small>aparece na conta da Enel</small></div>
+        <div class="chips" role="group" aria-label="Tipo de ligação">
+          <button type="button" class="chip" data-group="lig" data-value="mono" aria-pressed="false">Monofásica</button>
+          <button type="button" class="chip" data-group="lig" data-value="bi" aria-pressed="false">Bifásica</button>
+          <button type="button" class="chip" data-group="lig" data-value="tri" aria-pressed="false">Trifásica</button>
+          <button type="button" class="chip" data-group="lig" data-value="auto" aria-pressed="true">Não sei</button>
+        </div>
+      </div>
+
+      <button class="btn btn-sun" type="submit">Calcular minha economia <svg><use href="#i-arrow"/></svg></button>
+      <div class="sim-foot"><svg><use href="#i-lock"/></svg>Sem cadastro para ver o resultado · tarifa Enel SP vigente</div>
+    </form>
+  </div>
+</section>
+
+<!-- ================= RESULTADO ================= -->
+<section class="result" id="resultado" aria-live="polite">
+  <div class="wrap">
+    <div class="result-head">
+      <div>
+        <span class="eyebrow">Seu resultado</span>
+        <h2>Você pode economizar <span class="serif" id="rEcoTitle">R$ 0</span> por mês.</h2>
+        <p id="rSub">—</p>
+      </div>
+      <span class="badge-eco" id="rPct">—</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi hl"><small>Economia por mês</small><b id="kMes">—</b><span>já no primeiro mês</span></div>
+      <div class="kpi"><small>Economia por ano</small><b id="kAno">—</b><span>no primeiro ano</span></div>
+      <div class="kpi"><small>Em 25 anos</small><b id="k25">—</b><span>vida útil das placas</span></div>
+      <div class="kpi"><small>O sistema se paga em</small><b id="kPay">—</b><span id="kPaySub">estimativa</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card chart-card">
+        <div class="card-title">
+          <h3>Sua economia nos primeiros 10 anos</h3>
+          <div class="legend"><span><i style="background:#f59e0b"></i>Economia acumulada</span><span><i style="background:#cbd2dc"></i>Investimento</span></div>
+        </div>
+        <div class="chart" id="chart" role="img" aria-label="Gráfico da economia acumulada em 10 anos"></div>
+        <div class="mini">
+          <div class="inv">Investimento de referência<b id="sInv">—</b></div>
+          <div>Economia em 10 anos<b id="s10">—</b></div>
+          <div>Créditos na Enel<b>valem 60 meses</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><h3>Sistema recomendado</h3></div>
+        <div class="panels-viz" id="panelsViz" aria-hidden="true"></div>
+        <ul class="sys-list">
+          <li>Potência <b id="sKwp">—</b></li>
+          <li>Placas solares <b id="sPlacas">—</b></li>
+          <li>Área no telhado <b id="sArea">—</b></li>
+          <li>Geração média <b id="sGer">—</b></li>
+        </ul>
+        <div class="compare">
+          <div class="bar-row"><small>Conta hoje <b id="cHoje">—</b></small><div class="bar now"><i id="bHoje"></i></div></div>
+          <div class="bar-row"><small>Com energia solar <b id="cSol">—</b></small><div class="bar sol"><i id="bSol"></i></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lead-card" id="estudo">
+      <div>
+        <span class="eyebrow" style="color:#9fb0c3">Passo 2 de 2</span>
+        <h3>Receba o estudo completo no seu WhatsApp</h3>
+        <p>Um especialista da E-Solar confere a simulação com você e prepara a proposta com o valor exato para o seu imóvel.</p>
+        <ul class="checks">
+          <li><svg><use href="#i-check"/></svg>Análise da sua conta de luz real</li>
+          <li><svg><use href="#i-check"/></svg>Projeto dimensionado para o seu telhado</li>
+          <li><svg><use href="#i-check"/></svg>Proposta com valor, prazo e formas de pagamento</li>
+        </ul>
+      </div>
+      <div>
+        <form class="form" id="leadForm" novalidate>
+          <div class="two">
+            <div><label for="nome">Seu nome</label><input id="nome" autocomplete="name" placeholder="Como podemos te chamar?"></div>
+            <div><label for="bairro">Bairro ou cidade</label><input id="bairro" autocomplete="address-level2" placeholder="Ex.: Ipiranga"></div>
+          </div>
+          <div>
+            <label>Melhor horário para falar</label>
+            <div class="chips" role="group" aria-label="Melhor horário">
+              <button type="button" class="chip" data-group="hora" data-value="Manhã" aria-pressed="true">Manhã</button>
+              <button type="button" class="chip" data-group="hora" data-value="Tarde" aria-pressed="false">Tarde</button>
+              <button type="button" class="chip" data-group="hora" data-value="Noite" aria-pressed="false">Noite</button>
+            </div>
+          </div>
+          <p class="err" id="nomeErr" style="color:#fca5a5">Informe seu nome para continuar.</p>
+          <button class="btn btn-wa" type="submit"><svg style="width:20px;height:20px"><use href="#i-wa"/></svg>Enviar simulação pelo WhatsApp</button>
+          <p class="form-note">Abre o WhatsApp com a sua simulação pronta. Você revisa antes de enviar.</p>
+        </form>
+        <div class="sent" id="sent">
+          <div class="ok"><svg><use href="#i-check"/></svg></div>
+          <h4>Tudo certo!</h4>
+          <p>Abrimos o WhatsApp com a sua simulação. Se não abriu, <a id="sentLink" href="#" target="_blank" rel="noopener">toque aqui</a>.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="method">
+      <summary>Como calculamos esta simulação <svg><use href="#i-plus"/></svg></summary>
+      <ul>
+        <li>Tarifa residencial da Enel SP de R$ 0,78938/kWh sem tributos (Aneel, REH 3.596/2026, vigente desde 04/07/2026), com ICMS de 0%, 12% ou 18% conforme a faixa de consumo e PIS/Cofins médio de 5,5%.</li>
+        <li>Geração média de 108 kWh por kWp ao mês em São Paulo, com placas de 610 W.</li>
+        <li>Lei 14.300: em 2026, 60% do Fio B sobre a energia injetada na rede não é compensado (estimativa de R$ 0,13 por kWh injetado).</li>
+        <li>Custo mínimo de disponibilidade de 30, 50 ou 100 kWh (mono, bi ou trifásica). Não inclui iluminação pública nem bandeiras tarifárias.</li>
+        <li>Investimento de referência com base no preço médio de mercado (Greener, jun/2026), em faixa de −5% a +20%.</li>
+        <li>Projeção de 25 anos com reajuste de 5% ao ano na tarifa e perda de 0,5% ao ano na eficiência das placas.</li>
+        <li>Valores estimados. O orçamento definitivo é feito pela E-Solar após análise da conta e visita técnica.</li>
+      </ul>
+    </details>
+    <div class="again"><button class="link-btn" type="button" id="refazer">Refazer a simulação</button></div>
+  </div>
+</section>
+
+<!-- ================= COMO FUNCIONA ================= -->
+<section class="section" id="como-funciona">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">Como funciona</span>
+      <h2>Da simulação à energia no seu telhado em <span class="serif">3 passos</span></h2>
+      <p>Um processo claro, com você acompanhando cada etapa até o sistema estar gerando.</p>
+    </div>
+    <div class="steps">
+      <article class="step" data-reveal>
+        <div class="step-top"><span class="num">01</span><svg><use href="#i-search"/></svg></div>
+        <h3>Análise e visita técnica</h3>
+        <p>A gente estuda a sua conta de luz e visita o imóvel para avaliar telhado, sombra e padrão de entrada.</p>
+        <div class="you"><b>Você recebe:</b> o tamanho certo do sistema para o seu consumo.</div>
+      </article>
+      <article class="step" data-reveal>
+        <div class="step-top"><span class="num">02</span><svg><use href="#i-doc"/></svg></div>
+        <h3>Projeto e homologação</h3>
+        <p>Elaboramos o projeto e cuidamos do pedido de conexão junto à Enel, sem você precisar se preocupar com a burocracia.</p>
+        <div class="you"><b>Você recebe:</b> proposta com valor, prazo e pagamento.</div>
+      </article>
+      <article class="step" data-reveal>
+        <div class="step-top"><span class="num">03</span><svg><use href="#i-bolt"/></svg></div>
+        <h3>Instalação e economia</h3>
+        <p>A equipe da E-Solar instala o sistema com segurança. Depois da vistoria da Enel, a energia gerada já entra na sua conta.</p>
+        <div class="you"><b>Você ganha:</b> conta de luz menor todos os meses.</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJETOS ================= -->
+<section class="section projects on-dark" id="projetos">
+  <div class="wrap" style="position:relative">
+    <div class="proj-head" data-reveal>
+      <div>
+        <span class="eyebrow">Projetos entregues</span>
+        <h2>Telhados que já estão <span class="serif">gerando economia</span></h2>
+      </div>
+      <p>Instalações reais da E-Solar em São Paulo, do residencial ao comercial.</p>
+    </div>
+    <div class="gallery">
+      <figure class="shot" data-reveal>
+        <img src="img/obra-julho-2026.jpg" alt="Placas solares instaladas em telhado de fibrocimento, com céu azul" loading="lazy">
+        <span class="tag"><i></i>Entregue</span>
+        <figcaption><b>Mais um entregue</b><span>Jul · 2026</span></figcaption>
+      </figure>
+      <figure class="shot" data-reveal>
+        <img src="img/obra-junho-2026-a.jpg" alt="Fileiras de placas solares em laje de prédio" loading="lazy">
+        <span class="tag"><i></i>Entregue</span>
+        <figcaption><b>Usina em laje</b><span>Jun · 2026</span></figcaption>
+      </figure>
+      <figure class="shot" data-reveal>
+        <img src="img/obra-junho-2026-b.jpg" alt="Placas solares instaladas sobre telhado metálico, com árvores ao fundo" loading="lazy">
+        <span class="tag"><i></i>Entregue</span>
+        <figcaption><b>Telhado metálico</b><span>Jun · 2026</span></figcaption>
+      </figure>
+      <figure class="shot" data-reveal>
+        <img src="img/obra-dezembro-2024.jpg" alt="Placas solares sobre telhado de telhas cerâmicas" loading="lazy">
+        <span class="tag"><i></i>Entregue</span>
+        <figcaption><b>Telhado cerâmico</b><span>Dez · 2024</span></figcaption>
+      </figure>
+      <div class="next-card" data-reveal>
+        <div>
+          <span class="eyebrow">O próximo pode ser o seu</span>
+          <h3>Quanto o seu telhado pode economizar?</h3>
+          <p>Faça a simulação e receba o estudo no WhatsApp.</p>
+        </div>
+        <a class="btn btn-sun btn-sm" href="#simulador">Simular agora <svg><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= POR QUE AGORA ================= -->
+<section class="section why">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">Por que agora</span>
+      <h2>A conta de luz não para de subir. <span class="serif">A sua economia também não.</span></h2>
+    </div>
+    <div class="why-grid">
+      <article class="why-card" data-reveal>
+        <b>+9<span class="serif">%</span></b>
+        <h3>Reajuste da Enel SP em 2026</h3>
+        <p>Em julho de 2026 a tarifa residencial da Enel SP subiu cerca de 9%. Quem gera a própria energia sente muito menos cada novo reajuste.</p>
+        <a class="src" href="https://forbes.com.br/forbes-money/2026/06/aneel-aprova-aumento-de-1018-na-tarifa-de-energia-da-enel-sao-paulo-veja-quem-sera-mais-afetado/" target="_blank" rel="noopener">Fonte: Forbes Brasil ↗</a>
+      </article>
+      <article class="why-card" data-reveal>
+        <b>75<span class="serif">%</span></b>
+        <h3>Fio B em 2027</h3>
+        <p>Pela Lei 14.300, a parte do Fio B que não é compensada sobe de 60% em 2026 para 75% em 2027. Cada mês sem energia solar é um mês pagando a conta cheia.</p>
+        <a class="src" href="https://canalsolar.com.br/consumidores-60-do-fio-b-2026/" target="_blank" rel="noopener">Fonte: Canal Solar ↗</a>
+      </article>
+      <article class="why-card" data-reveal>
+        <b>25<span class="serif">+</span></b>
+        <h3>Anos de geração</h3>
+        <p>As placas costumam ter garantia de desempenho de 25 anos. O investimento se paga nos primeiros anos e a economia continua por décadas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="section faq" id="duvidas">
+  <div class="wrap faq-grid">
+    <div data-reveal>
+      <span class="eyebrow">Perguntas frequentes</span>
+      <h2>Antes de começar, <span class="serif">tire suas dúvidas</span></h2>
+      <p>Não encontrou o que procurava? Fale direto com quem vai fazer o seu projeto.</p>
+      <a class="btn btn-ink js-wa" data-msg="duvida" href="https://wa.me/5511965701211" target="_blank" rel="noopener">Perguntar no WhatsApp <svg><use href="#i-arrow"/></svg></a>
+    </div>
+    <div data-reveal>
+      <details class="qa" open>
+        <summary>A simulação é exata?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Ela é uma estimativa feita com a tarifa vigente da Enel SP e a média de sol de São Paulo. O valor exato sai do projeto, depois que a E-Solar analisa a sua conta e visita o imóvel.</p>
+      </details>
+      <details class="qa">
+        <summary>Por que a conta não zera?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Mesmo com energia solar, a Enel cobra um valor mínimo pela conexão, a taxa de iluminação pública e, pela Lei 14.300, uma parte do uso da rede (Fio B). Por isso a economia fica perto de 80% a 90%, e não 100%.</p>
+      </details>
+      <details class="qa">
+        <summary>E em dias nublados ou à noite?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>O sistema gera menos em dias nublados e nada à noite. O que sobra nos dias de sol vira crédito na Enel e é usado quando você precisa. Os créditos valem por 60 meses.</p>
+      </details>
+      <details class="qa">
+        <summary>Quanto tempo leva para começar a economizar?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Depende do tamanho do projeto e do prazo de aprovação da Enel. A E-Solar informa o cronograma completo na proposta.</p>
+      </details>
+      <details class="qa">
+        <summary>Vocês atendem empresas e indústrias?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Sim. A E-Solar faz projetos de energia solar para qualquer imóvel: casas, comércios e indústrias.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="section final on-dark">
+  <div class="wrap" data-reveal>
+    <span class="eyebrow">Vamos começar</span>
+    <h2>Sua próxima conta de luz pode <span class="serif">ser bem menor.</span></h2>
+    <p>Simule agora ou fale com a E-Solar. A resposta vem de quem projeta e instala.</p>
+    <div class="hero-cta">
+      <a class="btn btn-sun" href="#simulador">Simular minha economia <svg><use href="#i-arrow"/></svg></a>
+      <a class="btn btn-ghost js-wa" data-msg="geral" href="https://wa.me/5511965701211" target="_blank" rel="noopener"><svg style="color:#22c55e"><use href="#i-wa"/></svg>Falar no WhatsApp</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#topo">
+          <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="7.5" fill="url(#gSun)"/><g stroke="url(#gSun)" stroke-width="2.6" stroke-linecap="round"><path d="M20 3.5v4.5M20 32v4.5M3.5 20H8M32 20h4.5M8.3 8.3l3.2 3.2M28.5 28.5l3.2 3.2M8.3 31.7l3.2-3.2M28.5 11.5l3.2-3.2"/></g></svg>
+          <span class="brand-name"><b>E-<span>SOLAR</span></b><small>IPIRANGA · SP</small></span>
+        </a>
+        <p>A melhor escolha em energia fotovoltaica. Projetos de energia solar para qualquer imóvel, comércio e indústria.</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <ul><li><a href="#simulador">Simulador</a></li><li><a href="#como-funciona">Como funciona</a></li><li><a href="#projetos">Projetos</a></li><li><a href="#duvidas">Dúvidas</a></li></ul>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <ul>
+          <li><a class="js-wa" data-msg="geral" href="https://wa.me/5511965701211" target="_blank" rel="noopener">WhatsApp (11) 96570-1211</a></li>
+          <li><a href="https://www.instagram.com/e_solar_ipiranga/" target="_blank" rel="noopener">Instagram @e_solar_ipiranga</a></li>
+          <li>Ipiranga · São Paulo/SP</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 E-Solar Ipiranga. Todos os direitos reservados.</span>
+      <span>Protótipo desenvolvido por <a href="https://www.alphasolution.com.br" target="_blank" rel="noopener">Alpha Solution</a></span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa-float js-wa" data-msg="geral" href="https://wa.me/5511965701211" target="_blank" rel="noopener" aria-label="Falar com a E-Solar no WhatsApp"><svg><use href="#i-wa"/></svg></a>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ===== Premissas do cálculo (fáceis de ajustar) ===== */
+  const CFG = {
+    whatsapp: "5511965701211",
+    tarifa: 0.78938,            // R$/kWh sem tributos, Enel SP B1 (REH 3.596/2026)
+    pisCofins: 0.055,           // média
+    kwhPorKwp: 108,             // geração média mensal por kWp em São Paulo
+    painelW: 610,               // potência de cada placa
+    areaPainel: 2.7,            // m² por placa, com espaçamento
+    fioB: 0.13,                 // R$ não compensados por kWh injetado (60% do Fio B em 2026)
+    injecao: { casa: .65, comercio: .35, industria: .30 },
+    minimo: { mono: 30, bi: 50, tri: 100 },
+    ligPadrao: { casa: "bi", comercio: "tri", industria: "tri" },
+    reajuste: .05, degradacao: .005, anos: 25, anosGrafico: 10,
+    precoWp: [[1, 3.90], [2, 3.62], [4, 2.91], [8, 2.70], [15, 2.55], [30, 2.40], [75, 2.25]]
+  };
+
+  const STATIC = /[?&]static\b/.test(location.search);
+  if (STATIC) document.documentElement.classList.add("static");
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  const num = (v, d = 0) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+  const mil = v => v >= 1e6 ? "R$ " + num(v / 1e6, 1) + " mi" : v >= 1e4 ? "R$ " + num(v / 1e3, 0) + " mil" : brl.format(v);
+
+  /* ===== Cálculo ===== */
+  const icms = (kwh, tipo) => tipo !== "casa" ? .18 : kwh <= 90 ? 0 : kwh <= 200 ? .12 : .18;
+  const tarifaFinal = (kwh, tipo) => CFG.tarifa / (1 - icms(kwh, tipo) - CFG.pisCofins);
+  function consumoDaConta(valor, tipo) {
+    let k = valor / 1.03;
+    for (let i = 0; i < 5; i++) k = valor / tarifaFinal(k, tipo);
+    return k;
+  }
+  function precoPorWp(kwp) {
+    const t = CFG.precoWp;
+    if (kwp <= t[0][0]) return t[0][1];
+    for (let i = 1; i < t.length; i++) {
+      if (kwp <= t[i][0]) {
+        const [x0, y0] = t[i - 1], [x1, y1] = t[i];
+        return y0 + (y1 - y0) * (kwp - x0) / (x1 - x0);
+      }
+    }
+    return t[t.length - 1][1];
+  }
+  function simular(valor, tipo, ligSel) {
+    const lig = ligSel === "auto" ? CFG.ligPadrao[tipo] : ligSel;
+    const C = consumoDaConta(valor, tipo);
+    const T = tarifaFinal(C, tipo);
+    const minK = CFG.minimo[lig];
+    const alvo = Math.max(C - minK, 0);
+    const n = Math.max(Math.ceil(alvo / CFG.kwhPorKwp * 1000 / CFG.painelW), 3);
+    const kwp = n * CFG.painelW / 1000;
+    const G = kwp * CFG.kwhPorKwp;
+    const coberto = Math.min(G, C);
+    const descoberto = C - coberto;
+    const injetado = coberto * CFG.injecao[tipo];
+    const contaNova = Math.min(valor, Math.max(minK * T, descoberto * T + injetado * CFG.fioB));
+    const ecoMes = Math.max(valor - contaNova, 0);
+    const invest = kwp * 1000 * precoPorWp(kwp);
+    const invMin = invest * .95, invMax = invest * 1.2;
+    const serie = [0];
+    let acum = 0, payMin = null, payMax = null, payMed = null;
+    for (let a = 1; a <= CFG.anos; a++) {
+      const anoEco = ecoMes * 12 * Math.pow(1 + CFG.reajuste, a - 1) * Math.pow(1 - CFG.degradacao, a - 1);
+      const antes = acum; acum += anoEco; serie.push(acum);
+      const cruza = alvoV => (antes < alvoV && acum >= alvoV) ? a - 1 + (alvoV - antes) / anoEco : null;
+      if (payMin === null) payMin = cruza(invMin);
+      if (payMed === null) payMed = cruza(invest);
+      if (payMax === null) payMax = cruza(invMax);
+    }
+    return { valor, tipo, lig, C, kwp, n, G, area: n * CFG.areaPainel, contaNova, ecoMes, pct: ecoMes / valor, invest, invMin, invMax, serie, payMin, payMed, payMax, total25: acum };
+  }
+
+  /* ===== Interface: chips ===== */
+  const state = { tipo: "casa", lig: "auto", hora: "Manhã" };
+  $$(".chip[data-group]").forEach(ch => ch.addEventListener("click", () => {
+    const g = ch.dataset.group;
+    $$(`.chip[data-group="${g}"]`).forEach(c => c.setAttribute("aria-pressed", String(c === ch)));
+    state[g] = ch.dataset.value;
+  }));
+
+  /* ===== Valor da conta + slider ===== */
+  const inp = $("#valor"), rng = $("#faixa"), err = $("#valorErr");
+  const paint = () => { const p = (rng.value - rng.min) / (rng.max - rng.min) * 100; rng.style.setProperty("--p", p + "%"); };
+  const parse = s => Number(String(s).replace(/\D/g, "")) || 0;
+  const fmtInput = v => v ? num(v) : "";
+  inp.addEventListener("input", () => {
+    const v = parse(inp.value);
+    inp.value = fmtInput(v);
+    rng.value = Math.min(Math.max(v, 150), 5000); paint();
+    err.classList.remove("show");
+  });
+  rng.addEventListener("input", () => { inp.value = fmtInput(Number(rng.value)); paint(); err.classList.remove("show"); });
+  paint();
+
+  /* ===== Contadores ===== */
+  function countTo(el, to, fmt, dur = 1100) {
+    const reduce = STATIC || matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { el.textContent = fmt(to); return; }
+    const t0 = performance.now();
+    const step = t => {
+      const p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(to * e);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ===== Gráfico ===== */
+  function desenharGrafico(r) {
+    const box = $("#chart");
+    const W = Math.round(Math.min(Math.max(box.clientWidth || 640, 290), 900));
+    const small = W < 520;
+    const H = small ? 230 : 270, L = small ? 46 : 64, R = 14, Tp = 30, B = 30, N = CFG.anosGrafico;
+    const serie = r.serie.slice(0, N + 1), fim = serie[N];
+    const max = Math.max(fim, r.invMax) * 1.1;
+    const x = a => L + (W - L - R) * a / N;
+    const y = v => Tp + (H - Tp - B) * (1 - v / max);
+    const pts = serie.map((v, a) => [x(a), y(v)]);
+    const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    const area = line + ` L${x(N)} ${y(0)} L${x(0)} ${y(0)} Z`;
+    const ticks = [0, .25, .5, .75, 1].map(f => f * max);
+    let g = "";
+    ticks.forEach(v => { g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#e6e9ee" stroke-dasharray="${v ? "3 4" : "0"}"/><text x="${L - 10}" y="${y(v) + 4}" text-anchor="end">${v ? mil(v).replace("R$ ", "") : "0"}</text>`; });
+    (small ? [0, 5, 10] : [0, 2, 4, 6, 8, 10]).forEach(a => { g += `<text x="${x(a)}" y="${H - 8}" text-anchor="${a === 0 ? "start" : a === N ? "end" : "middle"}">${a === 0 ? "hoje" : a + " anos"}</text>`; });
+    const band = `<rect x="${L}" y="${y(r.invMax)}" width="${W - L - R}" height="${y(r.invMin) - y(r.invMax)}" fill="#cbd2dc" opacity=".35"/><line x1="${L}" x2="${W - R}" y1="${y(r.invest)}" y2="${y(r.invest)}" stroke="#8b93a1" stroke-dasharray="6 5"/>`;
+    let pay = "";
+    if (r.payMed !== null) {
+      const px = x(r.payMed), py = y(r.invest);
+      const label = "se paga em ~" + num(r.payMed, 1) + " anos";
+      const lx = Math.min(Math.max(px - 75, L + 4), W - R - 154);
+      pay = `<line x1="${px}" x2="${px}" y1="${py}" y2="${y(0)}" stroke="#0a0e14" stroke-dasharray="2 4"/><rect x="${lx}" y="${py - 38}" rx="8" width="154" height="24" fill="#0a0e14"/><text x="${lx + 77}" y="${py - 22}" text-anchor="middle" style="fill:#fff;font-size:11.5px">${label}</text><circle cx="${px}" cy="${py}" r="6" fill="#fff" stroke="#0a0e14" stroke-width="2.5"/>`;
+    }
+    const endLbl = `<text x="${x(N) - 4}" y="${y(fim) - 12}" text-anchor="end" style="fill:#b45309;font-size:12.5px;font-weight:600">${mil(fim)} em ${N} anos</text>`;
+    $("#chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+      <defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f59e0b" stop-opacity=".35"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></linearGradient></defs>
+      ${g}${band}
+      <path d="${area}" fill="url(#gA)"/>
+      <path d="${line}" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="draw"/>
+      ${pay}${endLbl}</svg>`;
+    const path = $("#chart .draw");
+    if (path && !STATIC && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transition = "stroke-dashoffset 1.6s cubic-bezier(.22,1,.36,1)";
+      path.style.strokeDashoffset = 0;
+    }
+    $("#chart").setAttribute("aria-label", `Economia acumulada de ${mil(fim)} em ${N} anos; o investimento se paga em cerca de ${r.payMed ? num(r.payMed, 1) : "—"} anos.`);
+  }
+
+  /* ===== Render do resultado ===== */
+  let ultimo = null;
+  function render(r) {
+    ultimo = r;
+    const pct = Math.round(r.pct * 100);
+    countTo($("#rEcoTitle"), r.ecoMes, v => brl.format(v));
+    $("#rSub").textContent = `Sua conta de ${brl.format(r.valor)} pode cair para cerca de ${brl.format(r.contaNova)} com energia solar.`;
+    $("#rPct").textContent = `↓ ${pct}% na conta de luz`;
+    countTo($("#kMes"), r.ecoMes, v => brl.format(v));
+    countTo($("#kAno"), r.ecoMes * 12, v => brl.format(v));
+    countTo($("#k25"), r.total25, v => mil(v));
+    if (r.payMin !== null && r.payMax !== null) {
+      $("#kPay").textContent = `${num(r.payMin, 1)} a ${num(r.payMax, 1)} anos`;
+      $("#kPaySub").textContent = "conforme o valor final do projeto";
+    } else { $("#kPay").textContent = "Sob análise"; $("#kPaySub").textContent = "fale com a E-Solar"; }
+    $("#sKwp").textContent = num(r.kwp, 2) + " kWp";
+    $("#sPlacas").textContent = r.n + " placas de " + CFG.painelW + " W";
+    $("#sArea").textContent = "≈ " + num(r.area) + " m²";
+    $("#sGer").textContent = "≈ " + num(r.G) + " kWh/mês";
+    $("#cHoje").textContent = brl.format(r.valor);
+    $("#cSol").textContent = brl.format(r.contaNova);
+    $("#bHoje").style.width = "0"; $("#bSol").style.width = "0";
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      $("#bHoje").style.width = "100%";
+      $("#bSol").style.width = Math.max(r.contaNova / r.valor * 100, 3) + "%";
+    }));
+    const kf = v => { const k = Math.round(v / 500) / 2; return Number.isInteger(k) ? num(k) : num(k, 1); };
+    $("#sInv").textContent = `R$ ${kf(r.invMin)} a ${kf(r.invMax)} mil`;
+    $("#s10").textContent = mil(r.serie[CFG.anosGrafico]);
+    const viz = $("#panelsViz"); viz.innerHTML = "";
+    const show = Math.min(r.n, 60);
+    for (let i = 0; i < show; i++) { const p = document.createElement("i"); p.style.animationDelay = (i * 35) + "ms"; viz.appendChild(p); }
+    if (r.n > 60) { viz.insertAdjacentHTML("beforeend", `<span style="grid-column:1/-1;font:500 12px var(--font-mono);color:#5b6472">+${r.n - 60} placas</span>`); }
+    desenharGrafico(r);
+    $("#leadForm").style.display = ""; $("#sent").classList.remove("show");
+  }
+
+  $("#simForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = parse(inp.value);
+    if (v < 150) { err.textContent = "Digite um valor a partir de R$ 150."; err.classList.add("show"); inp.focus(); return; }
+    if (v > 10000) {
+      err.innerHTML = `Para contas acima de R$ 10 mil por mês, o projeto costuma ser de média tensão ou minigeração. A E-Solar faz um estudo personalizado: <a href="${waLink("Olá, E-Solar! Vim pelo site. Minha conta de luz é de " + brl.format(v) + " por mês e quero um estudo personalizado.")}" target="_blank" rel="noopener" style="color:inherit;font-weight:600">fale no WhatsApp</a>.`;
+      err.classList.add("show"); return;
+    }
+    const res = $("#resultado");
+    res.classList.add("show");
+    render(simular(v, state.tipo, state.lig));
+    res.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  });
+  /* Link direto para uma simulação: ?conta=450&tipo=casa */
+  try {
+    const q = new URLSearchParams(location.search);
+    const c = parse(q.get("conta") || "");
+    if (c >= 150) {
+      inp.value = fmtInput(c); rng.value = Math.min(c, 5000); paint();
+      const t = q.get("tipo");
+      if (t && $(`.chip[data-group="tipo"][data-value="${t}"]`)) $(`.chip[data-group="tipo"][data-value="${t}"]`).click();
+      $("#resultado").classList.add("show");
+      render(simular(c, state.tipo, state.lig));
+      if (q.has("ver")) setTimeout(() => $("#resultado").scrollIntoView(), 50);
+    }
+  } catch (_) {}
+  let rz;
+  addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (ultimo && $("#resultado").classList.contains("show")) desenharGrafico(ultimo); }, 200); });
+  $("#refazer").addEventListener("click", () => { $("#simulador").scrollIntoView({ behavior: "smooth" }); setTimeout(() => inp.focus({ preventScroll: true }), 600); });
+
+  /* ===== WhatsApp ===== */
+  const waLink = txt => `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(txt)}`;
+  const MSG = {
+    geral: "Olá, E-Solar! Vim pelo site e quero um orçamento de energia solar.",
+    duvida: "Olá, E-Solar! Vim pelo site e tenho uma dúvida sobre energia solar."
+  };
+  $$(".js-wa").forEach(a => { a.href = waLink(MSG[a.dataset.msg] || MSG.geral); });
+
+  const tipoNome = { casa: "Casa", comercio: "Comércio", industria: "Indústria" };
+  const ligNome = { mono: "monofásica", bi: "bifásica", tri: "trifásica" };
+  $("#leadForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const nome = $("#nome").value.trim(), bairro = $("#bairro").value.trim();
+    if (!nome) { $("#nomeErr").classList.add("show"); $("#nome").focus(); return; }
+    $("#nomeErr").classList.remove("show");
+    const r = ultimo; if (!r) return;
+    const txt = [
+      `Olá, E-Solar! Fiz a simulação no site e quero receber o estudo completo.`,
+      ``,
+      `• Nome: ${nome}`,
+      bairro ? `• Bairro/cidade: ${bairro}` : null,
+      `• Melhor horário: ${state.hora}`,
+      `• Conta de luz: ${brl.format(r.valor)}/mês (${tipoNome[r.tipo]}, ligação ${state.lig === "auto" ? "não informada" : ligNome[r.lig]})`,
+      `• Sistema sugerido: ${num(r.kwp, 2)} kWp, ${r.n} placas`,
+      `• Economia estimada: ${brl.format(r.ecoMes)}/mês (${Math.round(r.pct * 100)}%)`
+    ].filter(l => l !== null).join("\n");
+    const link = waLink(txt);
+    window.open(link, "_blank", "noopener");
+    $("#sentLink").href = link;
+    $("#leadForm").style.display = "none"; $("#sent").classList.add("show");
+  });
+
+  /* ===== Header + revelação ===== */
+  const header = $(".site-header");
+  const onScroll = () => header.classList.toggle("scrolled", scrollY > 10);
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px", threshold: .08 });
+    $$("[data-reveal]").forEach((el, i) => { el.style.transitionDelay = (i % 5) * 70 + "ms"; io.observe(el); });
+  } else { $$("[data-reveal]").forEach(el => el.classList.add("in")); }
+})();
+</script>
+</body>
+</html>
